@@ -68,9 +68,7 @@ function App() {
   let farewellString
   if(deadList.length === 2) {
     farewellString = `Farewell ${deadList.join(" & ")} 🫡`
-  } else if(deadList.length === 0){
-    farewellString = "Guess something"
-  } else {
+  }  else {
     farewellString = `Farewell ${deadList.join(", ").replace(/,(?=[^,]*$)/, ", &")} 🫡`
   }
   
@@ -85,20 +83,22 @@ function App() {
   
   if(wrongGuessCount < 8 && allDone) {
     messageBox = (
-      <div className='bg-green-500 text-[#F9F4DA] text-[16px] h-[60px] grid place-items-center w-full mt-3.5'>
-          You Won!
-        </div>
+      <div className='bg-[#10A95B] text-[#F9F4DA] rounded-sm text-center h-[60px] grid place-items-center w-full mt-3.5'>
+          <span className='text-[20px]'>You Win!</span>
+          <span className='text-[16px]'>🎉 Well done! 🎉</span>
+      </div>
     )
   } else if(wrongGuessCount < 8 && !allDone) {
-    messageBox = (
-      <div className='bg-[#7A5EA7] text-[#F9F4DA] text-[16px] h-[60px] grid place-items-center w-full mt-3.5'>
+    messageBox = deadList.length === 0 ? (<div className='h-[60px] mt-3.5'></div>) : (
+      <div className='bg-[#7A5EA7] text-[#F9F4DA] text-[16px] h-[60px] rounded-sm grid place-items-center w-full mt-3.5'>
         {farewellString}
         </div>
     )
   } else {
     messageBox = (
-      <div className='bg-red-500 text-[#F9F4DA] text-[16px] h-[60px] grid place-items-center w-full mt-3.5'>
-        You Lost! Assembly Won! WTF!
+      <div className='bg-[#BA2A2A] text-[#F9F4DA] rounded-sm text-[16px] h-[60px] grid place-items-center w-full mt-3.5'>
+        <span className='text-[20px]'>Game Over!</span>
+        <span className='text-16px]'>You lose! Better start learning Assembly 😭</span>
           
         </div>
     )
