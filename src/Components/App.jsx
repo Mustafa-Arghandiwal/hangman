@@ -3,15 +3,24 @@ import CustomBackground from './CustomBackground'
 import PL from './PL'
 import AlphabetHolder from './AlphabetHolder';
 import KeyboardBtn from './KeyboardBtn';
-import { nanoid } from 'nanoid';
-
-
+import { getFarewellText } from '../utils';
+import { random } from 'nanoid';
+import { words } from '../words';
+import Confetti from "react-confetti"
+import { useWindowSize } from 'react-use';
 
 
 
 
 function App() {
-
+  useEffect(() => {
+    document.title = "Hangman";
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.type = "image/png";
+    link.href = "/guess.png";
+    document.head.appendChild(link);
+  }, []);
 
   const [plArray, setPlArray] = useState(() => [
       { plName: "HTML", color: "#E2680F", textColor: "#F9F4DA", dead: false},
@@ -27,13 +36,14 @@ function App() {
   )
   
   const alphabets = "QWERTYUIOPASDFGHJKLZXCVBNM"
-  
-  const words = ["developer"]
-  const [word, setWord] = useState(words[0])
+  const getNewWord = () => {
+    return words[Math.floor(Math.random() * (words.length - 1))]
+  }
+  const [word, setWord] = useState(() => getNewWord())
   const [guessedLetters, setGuessedLetters] = useState([])
  
   let wrongGuessCount = guessedLetters.filter(letter => !word.toUpperCase().includes(letter)).length
-  console.log(wrongGuessCount)
+
   
 
   useEffect(() => {
@@ -65,13 +75,18 @@ function App() {
   let messageBox
   
   const deadList = plArray.filter(obj => obj.dead).map(obj => obj.plName)
-  let farewellString
-  if(deadList.length === 2) {
-    farewellString = `Farewell ${deadList.join(" & ")} 🫡`
-  }  else {
-    farewellString = `Farewell ${deadList.join(", ").replace(/,(?=[^,]*$)/, ", &")} 🫡`
-  }
+  // let farewellString
+  // if(deadList.length === 2) {
+  //   farewellString = `Farewell ${deadList.join(" & ")} 🫡`
+  // }  else {
+  //   farewellString = `Farewell ${deadList.join(", ").replace(/,(?=[^,]*$)/, ", &")} 🫡`
+  // }
   
+  const currDeadLanguage = plArray[wrongGuessCount === 0 ? 0 : wrongGuessCount - 1].plName
+  const [farewellText, setFarewellText] = useState("")
+  useEffect(() => {
+    setFarewellText(getFarewellText(currDeadLanguage))
+  }, [wrongGuessCount])
 
   let allDone = true
   for(const letter of [...new Set(word)]) {
@@ -91,7 +106,7 @@ function App() {
   } else if(wrongGuessCount < 8 && !allDone) {
     messageBox = deadList.length === 0 ? (<div className='h-[60px] mt-3.5'></div>) : (
       <div className='bg-[#7A5EA7] text-[#F9F4DA] text-[16px] h-[60px] rounded-sm grid place-items-center w-full mt-3.5'>
-        {farewellString}
+        {farewellText}
         </div>
     )
   } else {
@@ -104,27 +119,33 @@ function App() {
     )
   }
 // ------------------------------------------------------------------
-  
+
+
+
+
 
 const plElements = plArray.map(pl => <PL plName={pl.plName} color={pl.color} textColor={pl.textColor} key={pl.plName} dead={pl.dead} />)
-const alphaHolderEls = word.split("").map((letter, index) => <AlphabetHolder key={index} letter={guessedLetters.includes(letter.toUpperCase()) ? letter.toUpperCase() : ""} />)
+const alphaHolderEls = word.split("").map((letter, index) => <AlphabetHolder key={index} isMissed={!guessedLetters.includes(letter.toUpperCase())} letter={guessedLetters.includes(letter.toUpperCase()) || wrongGuessCount === 8 ? letter.toUpperCase() : ""} />)
 const keys = alphabets.split("").map(letter => {
   const isClicked = guessedLetters.includes(letter)
   const isCorrect = isClicked && word.toUpperCase().includes(letter)
   const isWrong = isClicked && !word.toUpperCase().includes(letter)
-
+  
   return <KeyboardBtn letter={letter} key={letter} isCorrect={isCorrect} isWrong={isWrong} addGuessedLetter={addGuessedLetter} 
-                      allDone={allDone} wrongGuessCount={wrongGuessCount}
-        />
+  allDone={allDone} wrongGuessCount={wrongGuessCount}
+  />
 })
 
 
 
+// ------------------------------------------------------------------
 
+const {width, height} = useWindowSize()
 
 // --------------------------------------------------------------------
   return(
     <main className='  font-hanken h-svh grid place-items-center py-20'>
+      {allDone ? <Confetti width={width} height={height}/> : ""}
       <CustomBackground />
       <section className='flex flex-col text-center items-center max-w-96 gap-2'>
         <h1 className='text-[#F9F4DA] text-[20px]'>
@@ -170,7 +191,7 @@ const keys = alphabets.split("").map(letter => {
         { plName: "Ruby", color: "#D02B2B", textColor: "#F9F4DA", dead: false },
         { plName: "Assembly", color: "#2D519F", textColor: "#F9F4DA", dead: false}
       ]
-    ); setGuessedLetters([])}}
+    ); setGuessedLetters([]); setWord(getNewWord()) }}
     className='bg-[#11b5e5] border border-[#d7d7d7] rounded-sm w-[225px] h-[40px] px-3 py-1.5 cursor-pointer'>New Game</button>
     :
     <div className='w-[225px] h-[40px]'></div> 
