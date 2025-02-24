@@ -13,7 +13,9 @@
     "@tailwindcss/vite": "^4.0.7",
     "nanoid": "^5.1.0",
     "react": "^19.0.0",
+    "react-confetti": "^6.2.3",
     "react-dom": "^19.0.0",
+    "react-use": "^17.6.0",
     "tailwindcss": "^4.0.7"
   },
   "devDependencies": {
